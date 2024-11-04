@@ -8,6 +8,7 @@ let evPopularityMetricsCache = null;
 let vehiclePerformanceMetricsCache = null;
 let marketTrendsMetricsCache = null;
 
+<<<<<<< HEAD
 export const loadCSVData = async () => {
   if (csvDataCache) {
     return csvDataCache;
@@ -63,6 +64,33 @@ export const loadCSVData = async () => {
 //     });
 //   });
 // };
+=======
+// Load CSV data efficiently with PapaParse
+export const loadCSVData = async () => {
+  if (csvDataCache) return csvDataCache;
+
+  return new Promise((resolve, reject) => {
+    const tempDataCache = []; // Temporary array to hold chunks
+
+    Papa.parse("./Electric_Vehicle_Population_Data.csv", {
+      header: true,
+      skipEmptyLines: true,
+      dynamicTyping: true,
+      download: true,
+      chunk: (results) => {
+        console.log("Chunk Size:", results.data.length);
+        tempDataCache.push(...results.data); // Store chunks temporarily
+      },
+      complete: () => {
+        csvDataCache = tempDataCache; // Concatenate all chunks
+        console.log("Total Entries:", csvDataCache.length);
+        resolve(csvDataCache);
+      },
+      error: (error) => reject(error),
+    });
+  });
+};
+>>>>>>> f55393b1a576887d779626db28b3f71990a4e325
 
 // Summary Metrics Calculation
 export const calculateSummaryMetrics = async () => {
@@ -73,26 +101,43 @@ export const calculateSummaryMetrics = async () => {
   const totalEVs = data.length;
 
   let highestCountyRange = 0;
+<<<<<<< HEAD
   let highestCountyName = "";
 
+=======
+  let highestCountyName = '';
+  
+>>>>>>> f55393b1a576887d779626db28b3f71990a4e325
   // Use reduce to calculate total ranges and count per year
   const rangeByYear = data.reduce((acc, item) => {
     const year = parseInt(item["Model Year"], 10); // Ensure Model Year is an integer
     const range = item["Electric Range"]
       ? parseInt(item["Electric Range"], 10)
       : 0; // Parse Electric Range
+<<<<<<< HEAD
 
+=======
+  
+>>>>>>> f55393b1a576887d779626db28b3f71990a4e325
     // Only proceed if year and range are valid numbers
     if (!isNaN(year) && !isNaN(range) && range > 0) {
       // Initialize year entry if it doesn't exist
       if (!acc[year]) {
         acc[year] = { totalRange: 0, count: 0 };
       }
+<<<<<<< HEAD
 
       // Update the total range and count for the year
       acc[year].totalRange += range;
       acc[year].count += 1;
 
+=======
+      
+      // Update the total range and count for the year
+      acc[year].totalRange += range;
+      acc[year].count += 1;
+  
+>>>>>>> f55393b1a576887d779626db28b3f71990a4e325
       // Check for the highest range and update if necessary
       if (range > highestCountyRange) {
         highestCountyRange = range;
@@ -137,6 +182,7 @@ export const calculateSummaryMetrics = async () => {
     .map(([county, count]) => ({ county, count }));
 
   // Caching and returning all metrics
+<<<<<<< HEAD
   summaryMetricsCache = {
     totalEVs,
     avgRangeByYear,
@@ -145,6 +191,9 @@ export const calculateSummaryMetrics = async () => {
     highestCountyName,
     highestCountyRange,
   };
+=======
+  summaryMetricsCache = { totalEVs, avgRangeByYear, evTypeCounts, topCounties,highestCountyName,highestCountyRange };
+>>>>>>> f55393b1a576887d779626db28b3f71990a4e325
   return summaryMetricsCache;
 };
 
@@ -160,11 +209,19 @@ export const calculateEVPopularityMetrics = async () => {
     if (item.County) {
       countyDistribution[item.County] =
         (countyDistribution[item.County] || 0) + 1;
+<<<<<<< HEAD
       // Check if this county has the highest count
       if (countyDistribution[item.County] > highestCount) {
         highestCount = countyDistribution[item.County];
         highestCounty = item.County;
       }
+=======
+        // Check if this county has the highest count
+    if (countyDistribution[item.County] > highestCount) {
+      highestCount = countyDistribution[item.County];
+      highestCounty = item.County;
+    }
+>>>>>>> f55393b1a576887d779626db28b3f71990a4e325
     }
   });
 
@@ -172,7 +229,11 @@ export const calculateEVPopularityMetrics = async () => {
     countyDistribution,
     totalCountries: Object.keys(countyDistribution).length,
     highestCounty,
+<<<<<<< HEAD
     highestCount,
+=======
+    highestCount
+>>>>>>> f55393b1a576887d779626db28b3f71990a4e325
   };
   return evPopularityMetricsCache;
 };
@@ -196,6 +257,10 @@ export const calculateVehiclePerformanceMetrics = async () => {
       ? (ranges[ranges.length / 2 - 1] + ranges[ranges.length / 2]) / 2
       : ranges[Math.floor(ranges.length / 2)];
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> f55393b1a576887d779626db28b3f71990a4e325
   // Range Distribution based on 50-mile intervals
   const rangeDistribution = ranges.reduce((acc, range) => {
     const rangeCategory = `${Math.floor(range / 50) * 50}-${
@@ -259,16 +324,28 @@ export const calculateVehiclePerformanceMetrics = async () => {
       count;
     return acc;
   }, {});
+<<<<<<< HEAD
 
   console.log(rangeStats);
 
+=======
+  
+
+  console.log(rangeStats);
+  
+>>>>>>> f55393b1a576887d779626db28b3f71990a4e325
   vehiclePerformanceMetricsCache = {
     rangeDistribution: rangeStats,
     topModelsRange,
     evPriceDistribution,
     descriptiveStats: {
+<<<<<<< HEAD
       meanRange: Math.round(meanRange),
       medianRange: Math.round(medianRange),
+=======
+      meanRange:Math.round(meanRange),
+      medianRange:Math.round(medianRange),
+>>>>>>> f55393b1a576887d779626db28b3f71990a4e325
     },
   };
 
@@ -293,10 +370,19 @@ export const calculateMarketTrendsMetrics = async () => {
     .sort(([yearA], [yearB]) => yearA - yearB)
     .map(([year, count]) => ({ year: parseInt(year), count }));
 
+<<<<<<< HEAD
   const sortedYearlyCountRegistrations = Object.entries(yearlyRegistrations)
     .map(([year, count]) => ({ year: parseInt(year), count }))
     .sort((a, b) => b.count - a.count);
   console.log("sortedYearlyCountRegistrations", sortedYearlyCountRegistrations);
+=======
+    const sortedYearlyCountRegistrations = Object.entries(yearlyRegistrations)
+  .map(([year, count]) => ({ year: parseInt(year), count }))
+  .sort((a, b) => b.count - a.count);
+  console.log("sortedYearlyCountRegistrations" ,sortedYearlyCountRegistrations);
+  
+    
+>>>>>>> f55393b1a576887d779626db28b3f71990a4e325
 
   // Compound Annual Growth Rate (CAGR) Calculation using yearly registration count
   const growthRate = [];
@@ -337,8 +423,13 @@ export const calculateMarketTrendsMetrics = async () => {
     yearlyRegistrations: sortedYearlyRegistrations,
     growthRate,
     rangeImprovement,
+<<<<<<< HEAD
     highestRegistration: sortedYearlyCountRegistrations[0].count,
     highestRegistrationYear: sortedYearlyCountRegistrations[0].year,
+=======
+    highestRegistration:sortedYearlyCountRegistrations[0].count,
+    highestRegistrationYear:sortedYearlyCountRegistrations[0].year
+>>>>>>> f55393b1a576887d779626db28b3f71990a4e325
   };
 
   return marketTrendsMetricsCache;

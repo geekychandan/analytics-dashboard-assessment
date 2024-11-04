@@ -3,7 +3,11 @@ import { motion } from "framer-motion";
 import Header from "../components/common/Header";
 import StatCard from "../components/common/StatCard";
 
+<<<<<<< HEAD
 import { AlertTriangle,  Package, StarIcon, TrendingUp } from "lucide-react";
+=======
+import { AlertTriangle,  Package, TrendingUp } from "lucide-react";
+>>>>>>> f55393b1a576887d779626db28b3f71990a4e325
 import { useEffect, useState } from "react";
 import { calculateEVPopularityMetrics } from "../utils/csvDataProcessor";
 import CountyDistribution from "../components/Popularity/CountyDistribution";
@@ -46,7 +50,11 @@ const PopularityPage = () => {
 					/>
 					<StatCard
 						name='Highest Count'
+<<<<<<< HEAD
 						icon={StarIcon}
+=======
+						icon={AlertTriangle}
+>>>>>>> f55393b1a576887d779626db28b3f71990a4e325
 						value={popularityData.highestCount}
 						color='#10B981'
 					/>

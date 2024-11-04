@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { useTable, usePagination } from "react-table";
 import { motion } from "framer-motion";
-import { ArrowBigLeft, ArrowBigRightDashIcon, ArrowBigRightIcon, ArrowRight, MoveLeft, Search } from "lucide-react"; // Import custom CSS for table styling
+import { ArrowBigLeft,  ArrowBigRightIcon,  Search } from "lucide-react"; // Import custom CSS for table styling
 import { loadCSVData } from "../../utils/csvDataProcessor";
 import LoadingSpinner from "../common/LoadingSpinner";
 

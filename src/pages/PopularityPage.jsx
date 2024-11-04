@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import Header from "../components/common/Header";
 import StatCard from "../components/common/StatCard";
 
-import { AlertTriangle,  Package, TrendingUp } from "lucide-react";
+import { AlertTriangle,  Package, StarIcon, TrendingUp } from "lucide-react";
 import { useEffect, useState } from "react";
 import { calculateEVPopularityMetrics } from "../utils/csvDataProcessor";
 import CountyDistribution from "../components/Popularity/CountyDistribution";
@@ -46,7 +46,7 @@ const PopularityPage = () => {
 					/>
 					<StatCard
 						name='Highest Count'
-						icon={AlertTriangle}
+						icon={StarIcon}
 						value={popularityData.highestCount}
 						color='#10B981'
 					/>

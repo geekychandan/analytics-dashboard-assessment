@@ -8,31 +8,61 @@ let evPopularityMetricsCache = null;
 let vehiclePerformanceMetricsCache = null;
 let marketTrendsMetricsCache = null;
 
-// Load CSV data efficiently with PapaParse
 export const loadCSVData = async () => {
-  if (csvDataCache) return csvDataCache;
+  if (csvDataCache) {
+    return csvDataCache;
+  }
 
-  return new Promise((resolve, reject) => {
-    const tempDataCache = []; // Temporary array to hold chunks
+  const tempDataCache = [];
+  const filePath = "./Electric_Vehicle_Population_Data.csv";
 
-    Papa.parse("./Electric_Vehicle_Population_Data.csv", {
-      header: true,
-      skipEmptyLines: true,
-      dynamicTyping: true,
-      download: true,
-      chunk: (results) => {
-        console.log("Chunk Size:", results.data.length);
-        tempDataCache.push(...results.data); // Store chunks temporarily
-      },
-      complete: () => {
-        csvDataCache = tempDataCache; // Concatenate all chunks
-        console.log("Total Entries:", csvDataCache.length);
-        resolve(csvDataCache);
-      },
-      error: (error) => reject(error),
-    });
-  });
+  try {
+    const response = await fetch(filePath);
+    const reader = response.body.getReader();
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      // Process each chunk (e.g., parse CSV data)
+      // Modify this part according to your specific parsing needs
+      const chunkText = new TextDecoder().decode(value);
+      const chunkData = Papa.parse(chunkText, { header: true });
+      tempDataCache.push(...chunkData.data);
+      csvDataCache = tempDataCache;
+    }
+    return csvDataCache;
+  } catch (error) {
+    console.error("Error loading CSV data:", error);
+    throw error;
+  }
 };
+
+// Load CSV data efficiently with PapaParse
+// export const loadCSVData = async () => {
+//   if (csvDataCache) return csvDataCache;
+
+//   return new Promise((resolve, reject) => {
+//     const tempDataCache = []; // Temporary array to hold chunks
+
+//     Papa.parse("./Electric_Vehicle_Population_Data.csv", {
+//       header: true,
+//       skipEmptyLines: true,
+//       dynamicTyping: true,
+//       download: true,
+//       chunk: (results) => {
+//         console.log("Chunk Size:", results.data.length);
+//         tempDataCache.push(...results.data); // Store chunks temporarily
+//       },
+//       complete: () => {
+//         csvDataCache = tempDataCache; // Concatenate all chunks
+//         console.log("Total Entries:", csvDataCache.length);
+//         resolve(csvDataCache);
+//       },
+//       error: (error) => reject(error),
+//     });
+//   });
+// };
 
 // Summary Metrics Calculation
 export const calculateSummaryMetrics = async () => {
@@ -43,26 +73,26 @@ export const calculateSummaryMetrics = async () => {
   const totalEVs = data.length;
 
   let highestCountyRange = 0;
-  let highestCountyName = '';
-  
+  let highestCountyName = "";
+
   // Use reduce to calculate total ranges and count per year
   const rangeByYear = data.reduce((acc, item) => {
     const year = parseInt(item["Model Year"], 10); // Ensure Model Year is an integer
     const range = item["Electric Range"]
       ? parseInt(item["Electric Range"], 10)
       : 0; // Parse Electric Range
-  
+
     // Only proceed if year and range are valid numbers
     if (!isNaN(year) && !isNaN(range) && range > 0) {
       // Initialize year entry if it doesn't exist
       if (!acc[year]) {
         acc[year] = { totalRange: 0, count: 0 };
       }
-      
+
       // Update the total range and count for the year
       acc[year].totalRange += range;
       acc[year].count += 1;
-  
+
       // Check for the highest range and update if necessary
       if (range > highestCountyRange) {
         highestCountyRange = range;
@@ -107,7 +137,14 @@ export const calculateSummaryMetrics = async () => {
     .map(([county, count]) => ({ county, count }));
 
   // Caching and returning all metrics
-  summaryMetricsCache = { totalEVs, avgRangeByYear, evTypeCounts, topCounties,highestCountyName,highestCountyRange };
+  summaryMetricsCache = {
+    totalEVs,
+    avgRangeByYear,
+    evTypeCounts,
+    topCounties,
+    highestCountyName,
+    highestCountyRange,
+  };
   return summaryMetricsCache;
 };
 
@@ -123,11 +160,11 @@ export const calculateEVPopularityMetrics = async () => {
     if (item.County) {
       countyDistribution[item.County] =
         (countyDistribution[item.County] || 0) + 1;
-        // Check if this county has the highest count
-    if (countyDistribution[item.County] > highestCount) {
-      highestCount = countyDistribution[item.County];
-      highestCounty = item.County;
-    }
+      // Check if this county has the highest count
+      if (countyDistribution[item.County] > highestCount) {
+        highestCount = countyDistribution[item.County];
+        highestCounty = item.County;
+      }
     }
   });
 
@@ -135,7 +172,7 @@ export const calculateEVPopularityMetrics = async () => {
     countyDistribution,
     totalCountries: Object.keys(countyDistribution).length,
     highestCounty,
-    highestCount
+    highestCount,
   };
   return evPopularityMetricsCache;
 };
@@ -158,7 +195,6 @@ export const calculateVehiclePerformanceMetrics = async () => {
     ranges.length % 2 === 0
       ? (ranges[ranges.length / 2 - 1] + ranges[ranges.length / 2]) / 2
       : ranges[Math.floor(ranges.length / 2)];
-
 
   // Range Distribution based on 50-mile intervals
   const rangeDistribution = ranges.reduce((acc, range) => {
@@ -223,17 +259,16 @@ export const calculateVehiclePerformanceMetrics = async () => {
       count;
     return acc;
   }, {});
-  
 
   console.log(rangeStats);
-  
+
   vehiclePerformanceMetricsCache = {
     rangeDistribution: rangeStats,
     topModelsRange,
     evPriceDistribution,
     descriptiveStats: {
-      meanRange:Math.round(meanRange),
-      medianRange:Math.round(medianRange),
+      meanRange: Math.round(meanRange),
+      medianRange: Math.round(medianRange),
     },
   };
 
@@ -258,12 +293,10 @@ export const calculateMarketTrendsMetrics = async () => {
     .sort(([yearA], [yearB]) => yearA - yearB)
     .map(([year, count]) => ({ year: parseInt(year), count }));
 
-    const sortedYearlyCountRegistrations = Object.entries(yearlyRegistrations)
-  .map(([year, count]) => ({ year: parseInt(year), count }))
-  .sort((a, b) => b.count - a.count);
-  console.log("sortedYearlyCountRegistrations" ,sortedYearlyCountRegistrations);
-  
-    
+  const sortedYearlyCountRegistrations = Object.entries(yearlyRegistrations)
+    .map(([year, count]) => ({ year: parseInt(year), count }))
+    .sort((a, b) => b.count - a.count);
+  console.log("sortedYearlyCountRegistrations", sortedYearlyCountRegistrations);
 
   // Compound Annual Growth Rate (CAGR) Calculation using yearly registration count
   const growthRate = [];
@@ -304,8 +337,8 @@ export const calculateMarketTrendsMetrics = async () => {
     yearlyRegistrations: sortedYearlyRegistrations,
     growthRate,
     rangeImprovement,
-    highestRegistration:sortedYearlyCountRegistrations[0].count,
-    highestRegistrationYear:sortedYearlyCountRegistrations[0].year
+    highestRegistration: sortedYearlyCountRegistrations[0].count,
+    highestRegistrationYear: sortedYearlyCountRegistrations[0].year,
   };
 
   return marketTrendsMetricsCache;

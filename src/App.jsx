@@ -2,7 +2,8 @@ import { Route, Routes } from 'react-router-dom';
 import './App.css';
 import React, { Suspense } from 'react';
 import Sidebar from './components/common/Sidebar';
-import OverviewPage from './pages/OverviewPage';
+// import OverviewPage from './pages/OverviewPage';
+const OverviewPage= React.lazy(() => import('./pages/OverviewPage'))
 import LoadingSpinner from './components/common/LoadingSpinner';
 
 const TrendsPage = React.lazy(() => import('./pages/TrendsPage'));

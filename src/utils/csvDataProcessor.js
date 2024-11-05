@@ -8,35 +8,34 @@ let evPopularityMetricsCache = null;
 let vehiclePerformanceMetricsCache = null;
 let marketTrendsMetricsCache = null;
 
-export const loadCSVData = async () => {
-  if (csvDataCache) {
-    return csvDataCache;
-  }
 
-  const tempDataCache = [];
+export const loadCSVData = async () => {
+  if (csvDataCache) return csvDataCache; // Return cached data if available
+
   const filePath = "./Electric_Vehicle_Population_Data.csv";
 
   try {
+    // Fetch the entire file as a text blob
     const response = await fetch(filePath);
-    const reader = response.body.getReader();
+    if (!response.ok) throw new Error("Network response was not ok.");
 
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
+    // Convert response to text and parse with PapaParse
+    const csvText = await response.text();
+    const parsedData = Papa.parse(csvText, { header: true });
 
-      // Process each chunk (e.g., parse CSV data)
-      // Modify this part according to your specific parsing needs
-      const chunkText = new TextDecoder().decode(value);
-      const chunkData = Papa.parse(chunkText, { header: true });
-      tempDataCache.push(...chunkData.data);
-      csvDataCache = tempDataCache;
-    }
+    // Cache the parsed data to avoid re-fetching in future calls
+    csvDataCache = parsedData.data;
+    console.log("Total Entries:", csvDataCache.length);
+
     return csvDataCache;
   } catch (error) {
     console.error("Error loading CSV data:", error);
     throw error;
   }
 };
+
+// Usage (inside your React component or another async function)
+
 
 // Load CSV data efficiently with PapaParse
 // export const loadCSVData = async () => {
@@ -66,7 +65,7 @@ export const loadCSVData = async () => {
 
 // Summary Metrics Calculation
 export const calculateSummaryMetrics = async () => {
-  if (summaryMetricsCache) return summaryMetricsCache;
+  // if (summaryMetricsCache) return summaryMetricsCache;
   const data = await loadCSVData();
 
   // Total EV count
